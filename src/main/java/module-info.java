@@ -5,4 +5,6 @@ module ucr.lab.pg03a {
 
     opens ucr.lab.pg03a to javafx.fxml;
     exports ucr.lab.pg03a;
+    exports controller;
+    opens controller to javafx.fxml;
 }
