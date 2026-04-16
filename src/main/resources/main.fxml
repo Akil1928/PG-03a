@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="736.0" prefWidth="960.0"
+            styleClass="root-pane"
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.MainController">
+
+    <!-- ═══════ HEADER ═══════ -->
+    <top>
+        <VBox alignment="CENTER_LEFT" prefHeight="80.0" prefWidth="960.0"
+              spacing="4.0" styleClass="header-bar" BorderPane.alignment="CENTER">
+            <padding><Insets bottom="14.0" left="32.0" right="32.0" top="14.0" /></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="14.0">
+                    <children>
+                        <Label styleClass="header-badge" text="PG-03" />
+                        <Label styleClass="header-title"
+                               text="Tipos de Algoritmos y Listas Enlazadas (simples y dobles) en JavaFx">
+                            <font><Font size="22.0" /></font>
+                        </Label>
+                    </children>
+                </HBox>
+                <Label styleClass="header-sub"
+                       text="IF-3001 · Algoritmos y Estructuras de Datos">
+                    <font><Font size="12.0" /></font>
+                </Label>
+            </children>
+        </VBox>
+    </top>
+
+    <!-- ═══════ CENTER ═══════ -->
+    <center>
+        <TabPane fx:id="mainTabPane"
+                 prefHeight="200.0" prefWidth="200.0"
+                 styleClass="main-tabs"
+                 tabClosingPolicy="UNAVAILABLE"
+                 BorderPane.alignment="CENTER">
+            <tabs>
+
+                <!-- ════════════════════════════════════════
+                     TAB · MILLER-RABIN
+                ═════════════════════════════════════════ -->
+                <Tab text="Miller-Rabin">
+                    <content>
+                        <SplitPane dividerPositions="0.58"
+                                   prefHeight="636.0" prefWidth="960.0">
+                            <items>
+
+                                <!-- ── PANEL IZQUIERDO ── -->
+                                <VBox spacing="12.0"
+                                      style="-fx-background-color: white; -fx-padding: 20;">
+
+                                    <!-- Título del algoritmo -->
+                                    <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Miller-Rabin para enteros grandes. Solución con la Técnica Algoritmos Probabilistas" />
+
+                                    <!-- Canvas / área de visualización central -->
+                                    <VBox VBox.vgrow="ALWAYS"
+                                          style="-fx-background-color: #F9FBFF; -fx-border-color: #E8ECF2; -fx-border-radius: 6; -fx-background-radius: 6;"
+                                          alignment="CENTER"
+                                          minHeight="300.0">
+                                        <padding><Insets bottom="20" left="20" right="20" top="20"/></padding>
+                                        <children>
+                                            <Canvas fx:id="canvasMillerRabin" height="320.0" width="480.0" />
+                                            <Label fx:id="lblCanvasHint"
+                                                   style="-fx-text-fill: #8896A5; -fx-font-size: 13px; -fx-font-style: italic;"
+                                                   text="Presione 'Miller-Rabin' para comenzar" />
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Tabla de resultados -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Lista de Big Integers que pasaron el Test de Primalidad" />
+
+                                    <TableView fx:id="tableMillerRabin"
+                                               prefHeight="180.0"
+                                               style="-fx-background-color: white; -fx-border-color: #E8ECF2; -fx-font-size: 12px;">
+                                        <columns>
+                                            <TableColumn fx:id="colBigNumber"
+                                                         prefWidth="260.0"
+                                                         text="Big number" />
+                                            <TableColumn fx:id="colEsPrimo"
+                                                         prefWidth="220.0"
+                                                         text="Es Probablemente Primo ?" />
+                                        </columns>
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="Tabla sin contenido" />
+                                        </placeholder>
+                                    </TableView>
+
+                                </VBox>
+
+                                <!-- ── PANEL DERECHO ── -->
+                                <VBox prefWidth="390.0" spacing="12.0"
+                                      style="-fx-background-color: #F4F6FA; -fx-padding: 18;">
+
+                                    <!-- Parámetros -->
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Parámetros" />
+
+                                    <!-- Spinner de rondas / iteraciones -->
+                                    <Spinner fx:id="spinnerRounds"
+                                             prefWidth="120.0" prefHeight="30.0"
+                                             style="-fx-font-size: 13px;" />
+
+                                    <!-- Big Integer generado -->
+                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                        <children>
+                                            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                   text="Big Integer:" />
+                                            <Label fx:id="lblBigInteger"
+                                                   style="-fx-font-size: 12px; -fx-text-fill: #1A8C7B; -fx-font-weight: bold;"
+                                                   text="--" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Botones Generar / Limpiar campo -->
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <Button fx:id="btnGenerar"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="Generar aleatorio"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnLimpiarCampo"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-ghost"
+                                                    text="Limpiar campo"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Botones Miller-Rabin / Limpiar Todo -->
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <Button fx:id="btnMillerRabin"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-primary"
+                                                    text="Miller-Rabin"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnLimpiarTodo"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-ghost"
+                                                    text="Limpiar Todo"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Registro de Operaciones -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Registro de Operaciones">
+                                        <padding><Insets top="6.0" /></padding>
+                                    </Label>
+
+                                    <ListView fx:id="listRegistroOperaciones"
+                                              styleClass="steps-list"
+                                              VBox.vgrow="ALWAYS"
+                                              prefHeight="200.0">
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="" />
+                                        </placeholder>
+                                    </ListView>
+
+                                    <!-- Info box azul oscuro -->
+                                    <VBox spacing="6.0"
+                                          style="-fx-background-color: #1F3868; -fx-background-radius: 4; -fx-padding: 12;">
+                                        <children>
+                                            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: white;"
+                                                   text="&quot;Test de Primalidad&quot; utilizando el algoritmo de Miller-Rabin" />
+                                            <Label style="-fx-font-size: 11px; -fx-text-fill: #ADBDD4; -fx-wrap-text: true;"
+                                                   text="Algoritmo probabilístico eficiente utilizado para determinar si un número entero grande es primo o compuesto. A diferencia de los métodos deterministas, este test es muy rápido, lo que lo hace fundamental en criptografía (como en RSA) para generar números primos de gran tamaño en poco tiempo." />
+                                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #ADBDD4;"
+                                                   text="List de Big Integers para pruebas:" />
+                                            <Label style="-fx-font-size: 10px; -fx-text-fill: #8FAFD4; -fx-wrap-text: true;"
+                                                   text="1000000007, 184467440737095551557, 1000000000000000000003, 2305843009213693951" />
+                                        </children>
+                                    </VBox>
+
+                                </VBox>
+
+                            </items>
+                        </SplitPane>
+                    </content>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+
+</BorderPane>
