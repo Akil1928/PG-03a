@@ -58,18 +58,43 @@ public class MainController implements Initializable {
     }
 
     private void setupMillerRabin() {
-        //spinnerRounds.setValueFactory(new BigIntegerSpinnerValueFactory(min, max, initial, step));
+        // 1. Configuración de la fábrica (clase interna detallada abajo)
+        spinnerRounds.setValueFactory(new BigIntegerSpinnerValueFactory(min, max, initial, step));
+        spinnerRounds.setEditable(true);
 
+        // 2. Funcionalidad del botón Generar
+        btnGenerar.setOnAction(actionEvent -> {
+            BigInteger numeroAleatorio = generarBigIntegerAleatorio(min, max);
+            spinnerRounds.getValueFactory().setValue(numeroAleatorio);
+            // Actualizamos el label de una vez para que se vea el cambio
+            lblBigInteger.setText(numeroAleatorio.toString());
+        });
+
+        // 3. Listener del Spinner
         spinnerRounds.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue != null) {
-                lblBigInteger.setText("Número de rondas: " + newValue.toString());
+                lblBigInteger.setText(newValue.toString());
             }
         });
 
-        btnMillerRabin.setOnAction(actionEvent -> runMillerRabin());
-        btnMillerRabin.setOnAction(actionEvent -> reset(1));
-        btnLimpiarCampo.setOnAction(actionEvent -> {lblBigInteger.setText("");});
+        // 4. Botón Miller Rabin (Agrupando lógica para evitar que se pisen)
+        btnMillerRabin.setOnAction(actionEvent -> {
+            runMillerRabin();
+            // reset(1); // Opcional si quieres limpiar canvas al ejecutar
+        });
 
+        btnLimpiarCampo.setOnAction(actionEvent -> lblBigInteger.setText(""));
+    }
+
+    private BigInteger generarBigIntegerAleatorio(BigInteger minimo, BigInteger maximo) {
+        Random rnd = new Random();
+        BigInteger res;
+        do {
+            //generamos un número con la cantidad de bits necesaria para el máximo
+            res = new BigInteger(maximo.bitLength(), rnd);
+        } while (res.compareTo(minimo) < 0 || res.compareTo(maximo) > 0);
+
+        return res;
     }
 
     private void runMillerRabin() {
@@ -96,4 +121,31 @@ private void reset(int index) {
                 break;
         }
 }
+    //agrega esto al final de tu MainController o como clase interna
+    public static class BigIntegerSpinnerValueFactory extends SpinnerValueFactory<BigInteger> {
+        private final BigInteger step;
+
+        public BigIntegerSpinnerValueFactory(BigInteger min, BigInteger max, BigInteger initialValue, BigInteger step) {
+            this.step = step;
+            //definimos los límites
+            this.setValue(initialValue);
+
+            this.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.compareTo(min) < 0) setValue(min);
+                if (newVal.compareTo(max) > 0) setValue(max);
+            });
+        }
+
+        @Override
+        public void decrement(int steps) {
+            BigInteger newValue = getValue().subtract(step.multiply(BigInteger.valueOf(steps)));
+            setValue(newValue);
+        }
+
+        @Override
+        public void increment(int steps) {
+            BigInteger newValue = getValue().add(step.multiply(BigInteger.valueOf(steps)));
+            setValue(newValue);
+        }
+    }
 }
