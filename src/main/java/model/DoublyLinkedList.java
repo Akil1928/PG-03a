@@ -1,7 +1,5 @@
 package model;
 
-import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyles.index;
-
 public class DoublyLinkedList<T> implements List<T> {
 
     private Node<T> head;//inicio de la lista
@@ -148,44 +146,21 @@ public class DoublyLinkedList<T> implements List<T> {
     @Override
     public boolean contains(T element) throws ListException {
 
-        if(isEmpty()){
+        if (isEmpty()) {
             throw new ListException("Linked List is empty");
         }
-        Node<T> aux = head;//auxiliar para moverme por la lista
 
-        while(aux!= null){
-            if(equals(aux.data, element)) return true;
+        Node<T> aux = head;
+
+        while (aux != null) {
+            if (equals(aux.data, element)) {
+                return true;
+            }
 
             aux = aux.next;
         }
+
         return false;
-    }
-
-        if (isEmpty()){
-        throw new ListException("Linked List is empty");
-    }
-
-        if (equals(head.data, element)){
-        head = head.next;
-    }
-
-        else {
-        Node<T> prev = head;
-        while (prev.next != null){
-            if (equals(prev.next.data, element)) {
-
-                Node<T> removed = prev.next;
-
-                prev.next = removed.next;
-                return;//se sale del moetodo
-
-            }
-
-            prev = prev.next;//muevo prev al siguiente nodo
-        }
-        //al final dejamos tail en el ultimo nodo
-        //si la listas queda vacia se asigna null
-        tail = head!= null ? getNodeByIndex(indexOf(getLast())) : null;
     }
 
     @Override
@@ -194,7 +169,7 @@ public class DoublyLinkedList<T> implements List<T> {
     }
 
     @Override
-    public T indexOf(T element) throws ListException {
+    public int indexOf(T element) throws ListException {
         if(isEmpty()){
             throw new ListException("Linked List is empty");
         }
@@ -296,20 +271,6 @@ public class DoublyLinkedList<T> implements List<T> {
     }
 
     ///======================AYUDAS========================//
-    public Node<T> getNodeByIndex(T element) throws ListException{
-        if(isEmpty()){
-            throw new ListException("Linked list is empty");
-        }
-        Node<T> aux = head;
-        int pos = 1;
-        while(aux != null){
-            if (pos== index)return aux;
-            aux= aux.next;
-            pos++;
-        }
-        return null;
-    }
-
     public Node<T> getNodeByIndex(int index) throws ListException{
         if(isEmpty()){
             throw new ListException("Linked list is empty");
