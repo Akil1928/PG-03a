@@ -107,6 +107,8 @@ public class DoublyLinkedList<T> implements List<T> {
                     if(removed.next != null){
                         removed.next.prev = prev;
                     }
+                    prev = prev.next;
+                    if(prev == null) break;
                 }
                 //Al final dejamos tail en el ultimo nodo
                 //Si la lista queda vacia, se asigna null
@@ -267,7 +269,7 @@ public class DoublyLinkedList<T> implements List<T> {
         Node<T> aux = head;
         while(aux.next != null){
             sb.append("[").append(aux.data).append("]");
-            if(aux.next != null) sb.append(" → ");
+            if(aux.next != null) sb.append(" →→ ");
             aux = aux.next;
         }
 
