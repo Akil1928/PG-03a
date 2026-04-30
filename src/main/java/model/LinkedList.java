@@ -90,9 +90,12 @@ public class LinkedList <T> implements List<T> {
                     return;
                 }
                 prev = prev.next; //Muevo el auxiliar
+                if(prev.next == null) break;
             }
+            tail = tail!=null? getNodeByIndex(indexOf(getLast())) : null;
         }
     }
+
 
     @Override
     public T removeFirst() throws ListException {

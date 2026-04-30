@@ -62,11 +62,14 @@ public class DoublyLinkedList<T> implements List<T> {
     @Override
     public void addFirst(T element) {
         Node<T> node = new Node<>(element);
-        node.next = head;
 
-        head.prev = node;
-        head = node;//para que el nuevo nodo quede de primero
-
+        if (isEmpty()) {
+            head = tail = node;
+        } else {
+            node.next = head;
+            head.prev = node;
+            head = node;
+        }
     }
 
     @Override
@@ -118,36 +121,41 @@ public class DoublyLinkedList<T> implements List<T> {
 
     }
 //prueba
-    @Override
-    public T removeFirst() throws ListException {
-        if(isEmpty()){
-            throw new ListException("Linked List is empty");
-        }
-        T first = head.data;
-        head = head.next;
-        return first;
+
+@Override
+public T removeFirst() throws ListException {
+    if (isEmpty()) {
+        throw new ListException("Linked List is empty");
     }
+
+    T first = head.data;
+    head = head.next;
+
+    if (head != null) {
+        head.prev = null;
+    } else {
+        tail = null;
+    }
+
+    return first;
+}
 
     @Override
     public T removeLast() throws ListException {
-        if(isEmpty()){
+        if (isEmpty()) {
             throw new ListException("Linked List is empty");
+        }
 
+        T last = tail.data;
+
+        if (head == tail) {
+            clear();
+        } else {
+            tail = tail.prev;
+            tail.next = null;
         }
-        Node<T> aux =head;
-        Node<T> prev = head;
-        while (aux.next != null){
-            prev = aux; // dejamos un ratro en el nodo anterior a aux
-            aux = aux.next;
-        }
-        // se sale del while cuando aux está en el último nodo
-        T last = aux.data; // la data del último nodo
-        prev.next =null;
-        tail = prev; //para que tail quede apuntando al último nodo
-        // que pasa si la lista tiene un solo nodo
-        if(prev == aux) clear();// anulamos la lista
+
         return last;
-
     }
 
     @Override
@@ -208,52 +216,63 @@ public class DoublyLinkedList<T> implements List<T> {
 
     @Override
     public T getPrev(T element) throws ListException {
-        Node<T> aux =head;
+        if (isEmpty()) {
+            throw new ListException("Linked list is empty");
+        }
 
-        if(head.data == element){
-            aux = null;
-        }
-        while (aux.next != null){
-            if(equals(aux.next.data, element)){
-                break;
-            }else{
-                aux = aux.next;
+        Node<T> aux = head;
+
+        while (aux != null) {
+            if (equals(aux.data, element)) {
+                return aux.prev != null ? aux.prev.data : null;
             }
+
+            aux = aux.next;
         }
-        return aux.data;
+
+        return null;
     }
 
     @Override
     public T getNext(T element) throws ListException {
-        Node<T> aux =head;
+        if (isEmpty()) {
+            throw new ListException("Linked list is empty");
+        }
 
-        if(head.data == element){
-            aux = null;
-        }
-        while (aux != null){
-            if(equals(aux.next.data, element)){
-                aux = aux.next.next;
-                break;
-            }else{
-                aux = aux.next;
+        Node<T> aux = head;
+
+        while (aux != null) {
+            if (equals(aux.data, element)) {
+                return aux.next != null ? aux.next.data : null;
             }
+
+            aux = aux.next;
         }
-        return aux.data;
+
+        return null;
     }
 
     @Override
     public T get(int index) throws ListException {
-        if (isEmpty()){
+        if (isEmpty()) {
             throw new ListException("Linked list is empty");
         }
+
         Node<T> aux = head;
         int count = 1;
-        while(aux!=null){
-            if (equals(count++==index))return aux.data;
-            aux= aux.next;
+
+        while (aux != null) {
+            if (count == index) {
+                return aux.data;
+            }
+
+            count++;
+            aux = aux.next;
         }
+
         return null;
     }
+
 
     public Node<T> getTail() {
         return tail;
@@ -265,15 +284,18 @@ public class DoublyLinkedList<T> implements List<T> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("HEAD →");
+        StringBuilder sb = new StringBuilder("HEAD → ");
         Node<T> aux = head;
-        while(aux.next != null){
+
+        while (aux != null) {
             sb.append("[").append(aux.data).append("]");
-            if(aux.next != null) sb.append(" →→ ");
+            if (aux.next != null) {
+                sb.append(" → ");
+            }
             aux = aux.next;
         }
 
-        sb.append(" → NULL");//que apunte a nulo en el ultimo nodo
+        sb.append(" → NULL");
         return sb.toString();
     }
 
