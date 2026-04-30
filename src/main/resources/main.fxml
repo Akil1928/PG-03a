@@ -3,15 +3,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -196,6 +200,627 @@
                                                    text="List de Big Integers para pruebas:" />
                                             <Label style="-fx-font-size: 10px; -fx-text-fill: #8FAFD4; -fx-wrap-text: true;"
                                                    text="1000000007, 184467440737095551557, 1000000000000000000003, 2305843009213693951" />
+                                        </children>
+                                    </VBox>
+
+                                </VBox>
+
+                            </items>
+                        </SplitPane>
+                    </content>
+                </Tab>
+
+                <!-- ════════════════════════════════════════
+                     TAB · RANDOM SEARCH
+                ═════════════════════════════════════════ -->
+                <Tab text="Random Search">
+                    <content>
+                        <SplitPane dividerPositions="0.62"
+                                   prefHeight="636.0" prefWidth="960.0">
+                            <items>
+
+                                <!-- ── PANEL IZQUIERDO ── -->
+                                <VBox spacing="10.0"
+                                      style="-fx-background-color: white; -fx-padding: 20;">
+
+                                    <!-- Título del algoritmo -->
+                                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Búsqueda aleatoria en un arreglo con un máximo de intentos permitidos" />
+
+                                    <!-- Arreglo generado (label de texto) -->
+                                    <Label fx:id="lblArrayRS"
+                                           wrapText="true"
+                                           style="-fx-font-size: 11px; -fx-text-fill: #4A5568; -fx-background-color: #F4F6FA; -fx-border-color: #E8ECF2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 8 12 8 12; -fx-font-family: 'Courier New';"
+                                           text="[  ]  (n=0)" />
+
+                                    <!-- Canvas / área de visualización central -->
+                                    <VBox VBox.vgrow="ALWAYS"
+                                          style="-fx-background-color: #F9FBFF; -fx-border-color: #E8ECF2; -fx-border-radius: 6; -fx-background-radius: 6;"
+                                          alignment="CENTER"
+                                          minHeight="240.0">
+                                        <padding><Insets bottom="16" left="16" right="16" top="16"/></padding>
+                                        <children>
+                                            <!-- Resultado de búsqueda (texto central) -->
+                                            <Label fx:id="lblResultadoBusquedaRS"
+                                                   style="-fx-font-size: 12px; -fx-text-fill: #4A5568; -fx-font-style: italic;"
+                                                   text="" />
+                                            <!-- Resultado NOT FOUND en rojo -->
+                                            <Label fx:id="lblNoEncontradoRS"
+                                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #E53E3E;"
+                                                   text="" />
+                                            <Canvas fx:id="canvasRandomSearch" height="200.0" width="520.0" />
+                                            <Label fx:id="lblCanvasHintRandomSearch"
+                                                   style="-fx-text-fill: #8896A5; -fx-font-size: 13px; -fx-font-style: italic;"
+                                                   text="Presione 'Random Search' para comenzar" />
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Tabla de resultados -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Lista de elementos encontrados con el algoritmo Random Search" />
+
+                                    <TableView fx:id="tableRandomSearch"
+                                               prefHeight="160.0"
+                                               style="-fx-background-color: white; -fx-border-color: #E8ECF2; -fx-font-size: 12px;">
+                                        <columns>
+                                            <TableColumn fx:id="colValor"
+                                                         prefWidth="130.0"
+                                                         text="Valor" />
+                                            <TableColumn fx:id="colIndice"
+                                                         prefWidth="130.0"
+                                                         text="Indice" />
+                                            <TableColumn fx:id="colIntentosRegistrados"
+                                                         prefWidth="130.0"
+                                                         text="Intentos registrados" />
+                                            <TableColumn fx:id="colMaximoIntentos"
+                                                         prefWidth="130.0"
+                                                         text="Máximo de intentos" />
+                                        </columns>
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="Tabla sin contenido" />
+                                        </placeholder>
+                                    </TableView>
+
+                                </VBox>
+
+                                <!-- ── PANEL DERECHO ── -->
+                                <VBox prefWidth="370.0" spacing="10.0"
+                                      style="-fx-background-color: #F4F6FA; -fx-padding: 18;">
+
+                                    <!-- Parámetros -->
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Parámetros" />
+
+                                    <!-- Slider de tamaño del arreglo -->
+                                    <Slider fx:id="sliderArraySizeRS"
+                                            min="0" max="100" value="20"
+                                            showTickLabels="true"
+                                            showTickMarks="true"
+                                            majorTickUnit="25"
+                                            minorTickCount="4"
+                                            snapToTicks="false"
+                                            style="-fx-padding: 4 0 4 0;" />
+
+                                    <!-- Fila: Valor · Max Attempts · Generar aleatorio -->
+                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                        <children>
+                                            <!-- Valor -->
+                                            <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                <children>
+                                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                           text="Valor:" />
+                                                    <Spinner fx:id="spinnerValueRS"
+                                                             prefWidth="70.0" prefHeight="30.0"
+                                                             style="-fx-font-size: 12px;" />
+                                                </children>
+                                            </HBox>
+
+                                            <!-- Max Attempts -->
+                                            <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                <children>
+                                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                           text="Max Attempts:" />
+                                                    <Spinner fx:id="spinnerMaxAttemptsRS"
+                                                             prefWidth="70.0" prefHeight="30.0"
+                                                             style="-fx-font-size: 12px;" />
+                                                </children>
+                                            </HBox>
+
+                                            <!-- Botón Generar aleatorio -->
+                                            <Button fx:id="btnGenerarAleatorioRS"
+                                                    styleClass="btn-secondary"
+                                                    text="Generar aleatorio"
+                                                    HBox.hgrow="ALWAYS"
+                                                    maxWidth="Infinity" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Botones Random Search / Limpiar -->
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <Button fx:id="btnRandomSearch"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-primary"
+                                                    text="Random Search"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnLimpiarRS"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-ghost"
+                                                    text="Limpiar"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Registro de Operaciones -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Registro de Operaciones">
+                                        <padding><Insets top="4.0" /></padding>
+                                    </Label>
+
+                                    <ListView fx:id="listRegistroOperacionesRS"
+                                              styleClass="steps-list"
+                                              VBox.vgrow="ALWAYS"
+                                              prefHeight="240.0">
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="" />
+                                        </placeholder>
+                                    </ListView>
+
+                                    <!-- Info box azul oscuro (como TextArea estilizado) -->
+                                    <VBox spacing="0.0"
+                                          style="-fx-background-color: #1F3868; -fx-background-radius: 4; -fx-border-color: #4A90D9; -fx-border-width: 1; -fx-border-radius: 4;">
+                                        <children>
+                                            <!-- Cabecera del info box -->
+                                            <HBox alignment="CENTER_LEFT"
+                                                  style="-fx-padding: 8 12 6 12;">
+                                                <children>
+                                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: white;"
+                                                           text="Búsqueda aleatoria en un arreglo" />
+                                                </children>
+                                            </HBox>
+                                            <!-- Contenido tipo textarea -->
+                                            <TextArea fx:id="txtInfoRS"
+                                                      editable="false"
+                                                      wrapText="true"
+                                                      prefHeight="120.0"
+                                                      style="-fx-control-inner-background: #1A3060; -fx-background-color: #1A3060; -fx-text-fill: #ADBDD4; -fx-font-size: 11px; -fx-font-family: 'Courier New'; -fx-border-color: transparent; -fx-background-radius: 0 0 4 4;"
+                                                      text="Devuelve un arreglo de 2 elementos con el índice encontrado y el número de intentos realizados. Si el índice es -1 significa que el elemento no fue encontrado en el máximo de intentos permitidos." />
+                                        </children>
+                                    </VBox>
+
+                                </VBox>
+
+                            </items>
+                        </SplitPane>
+                    </content>
+                </Tab>
+
+                <!-- ════════════════════════════════════════
+                     TAB · LINKED LIST
+                ═════════════════════════════════════════ -->
+                <Tab text="Linked List">
+                    <content>
+                        <SplitPane dividerPositions="0.62"
+                                   prefHeight="636.0" prefWidth="960.0">
+                            <items>
+
+                                <!-- ── PANEL IZQUIERDO ── -->
+                                <VBox spacing="10.0"
+                                      style="-fx-background-color: white; -fx-padding: 16 20 16 20;">
+
+                                    <!-- Título del algoritmo -->
+                                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Lista enlazada simple: HEAD → nodos → NULL" />
+
+                                    <!-- Canvas con scroll horizontal -->
+                                    <ScrollPane hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
+                                                fitToHeight="true"
+                                                VBox.vgrow="ALWAYS"
+                                                style="-fx-background-color: #F9FBFF; -fx-border-color: #E8ECF2; -fx-border-radius: 6; -fx-background-radius: 6;"
+                                                minHeight="220.0">
+                                        <content>
+                                            <Canvas fx:id="canvasLinkedList" height="200.0" width="560.0" />
+                                        </content>
+                                    </ScrollPane>
+
+                                    <!-- Representación textual -->
+                                    <VBox spacing="2.0">
+                                        <children>
+                                            <Label style="-fx-font-size: 10px; -fx-text-fill: #8896A5;"
+                                                   text="Representación:" />
+                                            <TextArea fx:id="txtRepresentacionLL"
+                                                      editable="false"
+                                                      wrapText="false"
+                                                      prefHeight="46.0"
+                                                      style="-fx-control-inner-background: #F9FBFF; -fx-border-color: #E8ECF2; -fx-font-size: 12px; -fx-font-family: 'Courier New'; -fx-text-fill: #0D1B4B;"
+                                                      text="HEAD → NULL" />
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Label de resultado de operación (verde) -->
+                                    <Label fx:id="lblResultadoLL"
+                                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A8C7B;"
+                                           text="" />
+
+                                    <!-- Título tabla -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Contenido de la Lista Enlazada Simple" />
+
+                                    <!-- Tabla de contenido -->
+                                    <TableView fx:id="tableLinkedList"
+                                               VBox.vgrow="ALWAYS"
+                                               prefHeight="200.0"
+                                               style="-fx-background-color: white; -fx-border-color: #E8ECF2; -fx-font-size: 12px;">
+                                        <columns>
+                                            <TableColumn fx:id="colPosicion"
+                                                         prefWidth="120.0"
+                                                         text="Posición" />
+                                            <TableColumn fx:id="colElemento"
+                                                         prefWidth="160.0"
+                                                         text="Elemento" />
+                                            <TableColumn fx:id="colSeInserto"
+                                                         prefWidth="200.0"
+                                                         text="Se insertó al" />
+                                        </columns>
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="Tabla sin contenido" />
+                                        </placeholder>
+                                    </TableView>
+
+                                </VBox>
+
+                                <!-- ── PANEL DERECHO ── -->
+                                <VBox prefWidth="370.0" spacing="10.0"
+                                      style="-fx-background-color: #F4F6FA; -fx-padding: 18;">
+
+                                    <!-- Campo Valor en línea -->
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <children>
+                                            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                   text="Valor" />
+                                            <TextField fx:id="txtValueLinkedList"
+                                                       prefWidth="140.0"
+                                                       promptText="Ingresar valor"
+                                                       style="-fx-font-size: 13px;" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Hint Enter -->
+                                    <Label style="-fx-font-size: 11px; -fx-text-fill: #8896A5;"
+                                           text="(Enter = Agregar al final)" />
+
+                                    <!-- Sección Operaciones -->
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Operaciones">
+                                        <padding><Insets top="4.0" /></padding>
+                                    </Label>
+
+                                    <!-- Fila 1: Agregar inicio / Agregar final -->
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <Button fx:id="btnAgregarInicio"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="← Agregar inicio"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnAgregarFinal"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-primary"
+                                                    text="Agregar final →"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Fila 2: Buscar / Eliminar / Limpiar Todo -->
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <Button fx:id="btnBuscar"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="🔍 Buscar"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnEliminar"
+                                                    maxWidth="Infinity"
+                                                    style="-fx-font-size: 12px; -fx-text-fill: white; -fx-background-color: #27AE60; -fx-background-radius: 4; -fx-cursor: hand;"
+                                                    text="🗑 Eliminar"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnLimpiarLinkedList"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-ghost"
+                                                    text="↺ Limpiar Todo"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Registro de Operaciones -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Registro de Operaciones">
+                                        <padding><Insets top="4.0" /></padding>
+                                    </Label>
+
+                                    <ListView fx:id="listRegistroOperacionesLL"
+                                              styleClass="steps-list"
+                                              VBox.vgrow="ALWAYS"
+                                              prefHeight="240.0">
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="" />
+                                        </placeholder>
+                                    </ListView>
+
+                                    <!-- Info box: Estructura del Nodo (estilo dark textarea) -->
+                                    <VBox spacing="0.0"
+                                          style="-fx-background-color: #1F3868; -fx-background-radius: 4; -fx-border-color: #4A90D9; -fx-border-width: 1; -fx-border-radius: 4;">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT"
+                                                  style="-fx-padding: 8 12 6 12;">
+                                                <children>
+                                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: white;"
+                                                           text="Estructura del Nodo" />
+                                                </children>
+                                            </HBox>
+                                            <TextArea fx:id="txtInfoLL"
+                                                      editable="false"
+                                                      wrapText="true"
+                                                      prefHeight="110.0"
+                                                      style="-fx-control-inner-background: #1A3060; -fx-background-color: #1A3060; -fx-text-fill: #ADBDD4; -fx-font-size: 11px; -fx-font-family: 'Courier New'; -fx-border-color: transparent; -fx-background-radius: 0 0 4 4;"
+                                                      text="class Node&lt;T&gt; {&#10;    T data; //dato almacenado en el nodo&#10;    Node&lt;T&gt; next; //apuntador al siguiente nodo o a NULL&#10;}" />
+                                        </children>
+                                    </VBox>
+
+                                </VBox>
+
+                            </items>
+                        </SplitPane>
+                    </content>
+                </Tab>
+
+                <!-- ════════════════════════════════════════
+                     TAB · DOUBLY LINKED LIST
+                ═════════════════════════════════════════ -->
+                <Tab text="Doubly Linked List">
+                    <content>
+                        <SplitPane dividerPositions="0.62"
+                                   prefHeight="636.0" prefWidth="960.0">
+                            <items>
+
+                                <!-- ── PANEL IZQUIERDO ── -->
+                                <VBox spacing="10.0"
+                                      style="-fx-background-color: white; -fx-padding: 16 20 16 20;">
+
+                                    <!-- Título del algoritmo -->
+                                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Lista enlazada doble: HEAD ↔ nodos ↔ NULL" />
+
+                                    <!-- Canvas con scroll horizontal -->
+                                    <ScrollPane hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
+                                                fitToHeight="true"
+                                                VBox.vgrow="ALWAYS"
+                                                style="-fx-background-color: #F9FBFF; -fx-border-color: #E8ECF2; -fx-border-radius: 6; -fx-background-radius: 6;"
+                                                minHeight="180.0">
+                                        <content>
+                                            <Canvas fx:id="canvasDoublyLinkedList" height="160.0" width="560.0" />
+                                        </content>
+                                    </ScrollPane>
+
+                                    <!-- Representación textual -->
+                                    <VBox spacing="2.0">
+                                        <children>
+                                            <Label style="-fx-font-size: 10px; -fx-text-fill: #8896A5;"
+                                                   text="Representación:" />
+                                            <TextArea fx:id="txtRepresentacionDLL"
+                                                      editable="false"
+                                                      wrapText="false"
+                                                      prefHeight="46.0"
+                                                      style="-fx-control-inner-background: #F9FBFF; -fx-border-color: #E8ECF2; -fx-font-size: 12px; -fx-font-family: 'Courier New'; -fx-text-fill: #0D1B4B;"
+                                                      text="NULL ↔ HEAD ↔ NULL" />
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Tabla de contenido -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Contenido de la Lista Enlazada Doble" />
+
+                                    <TableView fx:id="tableDoublyLinkedList"
+                                               VBox.vgrow="ALWAYS"
+                                               prefHeight="200.0"
+                                               style="-fx-background-color: white; -fx-border-color: #E8ECF2; -fx-font-size: 12px;">
+                                        <columns>
+                                            <TableColumn fx:id="colIdDLL"
+                                                         prefWidth="80.0"
+                                                         text="Id" />
+                                            <TableColumn fx:id="colNombreDLL"
+                                                         prefWidth="110.0"
+                                                         text="Nombre" />
+                                            <TableColumn fx:id="colPuestoDLL"
+                                                         prefWidth="150.0"
+                                                         text="Puesto" />
+                                            <TableColumn fx:id="colFechaIngresoDLL"
+                                                         prefWidth="150.0"
+                                                         text="Fecha ingreso" />
+                                        </columns>
+                                        <placeholder>
+                                            <Label style="-fx-text-fill: #8896A5; -fx-font-size: 11px;"
+                                                   text="Tabla sin contenido" />
+                                        </placeholder>
+                                    </TableView>
+
+                                </VBox>
+
+                                <!-- ── PANEL DERECHO ── -->
+                                <VBox prefWidth="370.0" spacing="8.0"
+                                      style="-fx-background-color: #F4F6FA; -fx-padding: 14;">
+
+                                    <!-- ── Employee Information (formulario vertical) ── -->
+                                    <VBox spacing="8.0"
+                                          style="-fx-border-color: #4A90D9; -fx-border-width: 1.5; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 12 14 14 14; -fx-background-color: #EBF3FC;">
+                                        <children>
+                                            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2E6DA4;"
+                                                   text="Employee Information" />
+
+                                            <!-- Id -->
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <children>
+                                                    <Label minWidth="80.0"
+                                                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                           text="Id:" />
+                                                    <TextField fx:id="txtIdDLL"
+                                                               maxWidth="Infinity"
+                                                               HBox.hgrow="ALWAYS"
+                                                               style="-fx-font-size: 12px; -fx-background-color: white; -fx-border-color: #C8D8EA; -fx-border-radius: 3; -fx-background-radius: 3;" />
+                                                </children>
+                                            </HBox>
+
+                                            <!-- Name -->
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <children>
+                                                    <Label minWidth="80.0"
+                                                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                           text="Name:" />
+                                                    <TextField fx:id="txtNameDLL"
+                                                               maxWidth="Infinity"
+                                                               HBox.hgrow="ALWAYS"
+                                                               style="-fx-font-size: 12px; -fx-background-color: white; -fx-border-color: #C8D8EA; -fx-border-radius: 3; -fx-background-radius: 3;" />
+                                                </children>
+                                            </HBox>
+
+                                            <!-- Job Position -->
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <children>
+                                                    <Label minWidth="80.0"
+                                                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                           text="Job Position:" />
+                                                    <ComboBox fx:id="cmbJobPositionDLL"
+                                                              maxWidth="Infinity"
+                                                              HBox.hgrow="ALWAYS"
+                                                              style="-fx-font-size: 12px; -fx-background-color: white;" />
+                                                </children>
+                                            </HBox>
+
+                                            <!-- Hire date -->
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <children>
+                                                    <Label minWidth="80.0"
+                                                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                                           text="Hire date:" />
+                                                    <DatePicker fx:id="dpHireDateDLL"
+                                                                maxWidth="Infinity"
+                                                                HBox.hgrow="ALWAYS"
+                                                                style="-fx-font-size: 12px;" />
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                    <!-- ── Operaciones ── -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Operaciones">
+                                        <padding><Insets top="2.0" /></padding>
+                                    </Label>
+
+                                    <!-- Fila 1: Agregar / Buscar / Limpiar Todo -->
+                                    <HBox spacing="8.0">
+                                        <children>
+                                            <Button fx:id="btnAgregarDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="Agregar"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnBuscarDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="🔍 Buscar"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnLimpiarTodoDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-ghost"
+                                                    text="↺ Limpiar"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Fila 2: Primero / Último / Anterior / Siguiente -->
+                                    <HBox spacing="8.0">
+                                        <children>
+                                            <Button fx:id="btnPrimeroDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-primary"
+                                                    text="Primero"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnUltimoDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-primary"
+                                                    text="Último"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnAnteriorDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="Anterior"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnSiguienteDLL"
+                                                    maxWidth="Infinity"
+                                                    styleClass="btn-secondary"
+                                                    text="Siguiente"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Fila 3: Eliminar / Eliminar Inicio / Eliminar Final -->
+                                    <HBox spacing="8.0">
+                                        <children>
+                                            <Button fx:id="btnEliminarDLL"
+                                                    maxWidth="Infinity"
+                                                    style="-fx-font-size: 12px; -fx-text-fill: white; -fx-background-color: #27AE60; -fx-background-radius: 4; -fx-cursor: hand;"
+                                                    text="🗑 Eliminar"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnEliminarInicioDLL"
+                                                    maxWidth="Infinity"
+                                                    style="-fx-font-size: 12px; -fx-text-fill: white; -fx-background-color: #27AE60; -fx-background-radius: 4; -fx-cursor: hand;"
+                                                    text="🗑 Eliminar Inicio"
+                                                    HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnEliminarFinalDLL"
+                                                    maxWidth="Infinity"
+                                                    style="-fx-font-size: 12px; -fx-text-fill: white; -fx-background-color: #27AE60; -fx-background-radius: 4; -fx-cursor: hand;"
+                                                    text="🗑 Eliminar Final"
+                                                    HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </HBox>
+
+                                    <!-- ── Registro de Operaciones ── -->
+                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0D1B4B;"
+                                           text="Registro de Operaciones">
+                                        <padding><Insets top="2.0" /></padding>
+                                    </Label>
+
+                                    <!-- TextArea claro para el registro (igual a la imagen) -->
+                                    <TextArea fx:id="txtRegistroOperacionesDLL"
+                                              editable="false"
+                                              wrapText="false"
+                                              VBox.vgrow="ALWAYS"
+                                              prefHeight="130.0"
+                                              style="-fx-control-inner-background: white; -fx-border-color: #D0D8E4; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-size: 11px; -fx-font-family: 'Courier New'; -fx-text-fill: #2D3748;"
+                                              text="" />
+
+                                    <!-- ── Info box: Estructura del Nodo (dark TextArea) ── -->
+                                    <VBox spacing="0.0"
+                                          style="-fx-background-color: #1F3868; -fx-background-radius: 4; -fx-border-color: #4A90D9; -fx-border-width: 1; -fx-border-radius: 4;">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT"
+                                                  style="-fx-padding: 7 12 5 12;">
+                                                <children>
+                                                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: white;"
+                                                           text="Estructura del Nodo" />
+                                                </children>
+                                            </HBox>
+                                            <TextArea fx:id="txtInfoDLL"
+                                                      editable="false"
+                                                      wrapText="true"
+                                                      prefHeight="130.0"
+                                                      style="-fx-control-inner-background: #1A3060; -fx-background-color: #1A3060; -fx-text-fill: #ADBDD4; -fx-font-size: 11px; -fx-font-family: 'Courier New'; -fx-border-color: transparent; -fx-background-radius: 0 0 4 4;"
+                                                      text="class Node&lt;T&gt; {&#10;    T data; //dato almacenado en el nodo&#10;    Node&lt;T&gt; next; //apuntador al siguiente nodo o a NULL&#10;    Node&lt;T&gt; prev; //apuntador al nodo anterior o a NULL&#10;}" />
                                         </children>
                                     </VBox>
 

@@ -50,6 +50,118 @@ public class MainController implements Initializable {
     BigInteger max = new BigInteger("1000000000000000000000000000");
     BigInteger initial = new BigInteger("10000000000000000000000");
     BigInteger step = new BigInteger("1");
+    @FXML
+    private ListView listRegistroOperacionesRS;
+    @FXML
+    private Button btnLimpiarRS;
+    @FXML
+    private Spinner spinnerMaxAttemptsRS;
+    @FXML
+    private Label lblCanvasHintRandomSearch;
+    @FXML
+    private TableView tableRandomSearch;
+    @FXML
+    private Canvas canvasRandomSearch;
+    @FXML
+    private TableColumn colMaximoIntentos;
+    @FXML
+    private TableColumn colIndice;
+    @FXML
+    private Spinner spinnerValueRS;
+    @FXML
+    private Button btnRandomSearch;
+    @FXML
+    private Button btnGenerarAleatorioRS;
+    @FXML
+    private TableColumn colIntentosRegistrados;
+    @FXML
+    private TableColumn colValor;
+    @FXML
+    private Button btnUltimoDLL;
+    @FXML
+    private TextField txtValueLinkedList;
+    @FXML
+    private Button btnAgregarDLL;
+    @FXML
+    private Button btnEliminarInicioDLL;
+    @FXML
+    private Button btnAnteriorDLL;
+    @FXML
+    private TableColumn colElemento;
+    @FXML
+    private Button btnSiguienteDLL;
+    @FXML
+    private TextField txtIdDLL;
+    @FXML
+    private ComboBox cmbJobPositionDLL;
+    @FXML
+    private Canvas canvasDoublyLinkedList;
+    @FXML
+    private TableColumn colNombreDLL;
+    @FXML
+    private Button btnLimpiarLinkedList;
+    @FXML
+    private TableColumn colSeInserto;
+    @FXML
+    private TableView tableDoublyLinkedList;
+    @FXML
+    private Button btnBuscar;
+    @FXML
+    private ListView listRegistroOperacionesLL;
+    @FXML
+    private TableColumn colFechaIngresoDLL;
+    @FXML
+    private Button btnLimpiarTodoDLL;
+    @FXML
+    private Button btnPrimeroDLL;
+    @FXML
+    private TableColumn colIdDLL;
+    @FXML
+    private TextArea txtRepresentacionDLL;
+    @FXML
+    private Button btnBuscarDLL;
+    @FXML
+    private Button btnAgregarFinal;
+    @FXML
+    private Button btnEliminarDLL;
+    @FXML
+    private TableView tableLinkedList;
+    @FXML
+    private Button btnEliminarFinalDLL;
+    @FXML
+    private Canvas canvasLinkedList;
+    @FXML
+    private Button btnEliminar;
+    @FXML
+    private TableColumn colPosicion;
+    @FXML
+    private TextField txtNameDLL;
+    @FXML
+    private Button btnAgregarInicio;
+    @FXML
+    private TableColumn colPuestoDLL;
+    @FXML
+    private DatePicker dpHireDateDLL;
+    @FXML
+    private Label lblResultadoBusquedaRS;
+    @FXML
+    private TextArea txtInfoLL;
+    @FXML
+    private TextArea txtRepresentacionLL;
+    @FXML
+    private Label lblResultadoLL;
+    @FXML
+    private TextArea txtInfoRS;
+    @FXML
+    private Slider sliderArraySizeRS;
+    @FXML
+    private TextArea txtInfoDLL;
+    @FXML
+    private Label lblArrayRS;
+    @FXML
+    private Label lblNoEncontradoRS;
+    @FXML
+    private TextArea txtRegistroOperacionesDLL;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
