@@ -10,6 +10,13 @@ import javafx.scene.control.*;
 import model.Painter;
 import model.Probabilistic;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.cell.PropertyValueFactory;
+import model.DoublyLinkedList;
+import model.Employee;
+import model.ListException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import java.math.BigInteger;
 import java.net.URL;
@@ -50,6 +57,13 @@ public class MainController implements Initializable {
     BigInteger max = new BigInteger("1000000000000000000000000000");
     BigInteger initial = new BigInteger("10000000000000000000000");
     BigInteger step = new BigInteger("1");
+
+    // TAB DLL - Atributos internos
+    private DoublyLinkedList<Employee> dll = new DoublyLinkedList<>();
+    private Employee currentEmployee = null; //empleado seleccionado por navegación
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+
     @FXML
     private ListView listRegistroOperacionesRS;
     @FXML
@@ -97,25 +111,25 @@ public class MainController implements Initializable {
     @FXML
     private Canvas canvasDoublyLinkedList;
     @FXML
-    private TableColumn colNombreDLL;
+    private TableColumn <Employee, String> colNombreDLL;
     @FXML
     private Button btnLimpiarLinkedList;
     @FXML
     private TableColumn colSeInserto;
     @FXML
-    private TableView tableDoublyLinkedList;
+    private TableView <Employee> tableDoublyLinkedList;
     @FXML
     private Button btnBuscar;
     @FXML
     private ListView listRegistroOperacionesLL;
     @FXML
-    private TableColumn colFechaIngresoDLL;
+    private TableColumn <Employee, String> colFechaIngresoDLL;
     @FXML
     private Button btnLimpiarTodoDLL;
     @FXML
     private Button btnPrimeroDLL;
     @FXML
-    private TableColumn colIdDLL;
+    private TableColumn <Employee, String> colIdDLL;
     @FXML
     private TextArea txtRepresentacionDLL;
     @FXML
@@ -139,7 +153,7 @@ public class MainController implements Initializable {
     @FXML
     private Button btnAgregarInicio;
     @FXML
-    private TableColumn colPuestoDLL;
+    private TableColumn <Employee, String> colPuestoDLL;
     @FXML
     private DatePicker dpHireDateDLL;
     @FXML
@@ -166,7 +180,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupMillerRabin();
-
+        setupDoublyLinkedList();
     }
 
     private void setupMillerRabin() {
@@ -259,5 +273,319 @@ private void reset(int index) {
             BigInteger newValue = getValue().add(step.multiply(BigInteger.valueOf(steps)));
             setValue(newValue);
         }
+    }
+
+    private void setupDoublyLinkedList() {
+
+        //1.ComboBox de puestos
+        cmbJobPositionDLL.getItems().addAll(
+                "Choose", "Docente", "Informática/e", "Arquitectura/e",
+                "Medicina", "Ingeniería", "Administración", "Recursos Humanos"
+        );
+        cmbJobPositionDLL.setValue("Choose");
+
+        //2.Columnas de la tabla
+        colIdDLL.setCellValueFactory(data ->
+                new SimpleStringProperty(((Employee) data.getValue()).getId()));
+        colNombreDLL.setCellValueFactory(data ->
+                new SimpleStringProperty(((Employee) data.getValue()).getName()));
+        colPuestoDLL.setCellValueFactory(data ->
+                new SimpleStringProperty(((Employee) data.getValue()).getJobPosition()));
+        colFechaIngresoDLL.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        ((Employee) data.getValue()).getHireDate() != null
+                                ? ((Employee) data.getValue()).getHireDate().format(DATE_FMT)
+                                : ""));
+
+        //3.Botón Agregar
+        btnAgregarDLL.setOnAction(e -> {
+            String id   = txtIdDLL.getText().trim();
+            String name = txtNameDLL.getText().trim();
+            String job  = (String) cmbJobPositionDLL.getValue();
+            LocalDate date = dpHireDateDLL.getValue();
+
+            if (id.isEmpty() || name.isEmpty() || date == null || "Choose".equals(job)) {
+                appendLogDLL("⚠ Complete todos los campos antes de agregar.");
+                return;
+            }
+            Employee emp = new Employee(id, name, job, date);
+            dll.add(emp);
+            appendLogDLL("✔ Agregado: " + emp);
+            refreshTableDLL();
+            refreshCanvasDLL();
+            clearFormDLL();
+        });
+
+        //4.Botón Buscar (por ID)
+        btnBuscarDLL.setOnAction(e -> {
+            String id = txtIdDLL.getText().trim();
+            if (id.isEmpty()) {
+                appendLogDLL("⚠ Ingrese un ID para buscar.");
+                return;
+            }
+            try {
+                Employee found = findById(id);
+                if (found != null) {
+                    currentEmployee = found;
+                    fillFormDLL(found);
+                    appendLogDLL("🔍 Encontrado: " + found);
+                } else {
+                    appendLogDLL("✖ No se encontró empleado con ID: " + id);
+                }
+            } catch (ListException ex) {
+                appendLogDLL("✖ Error: " + ex.getMessage());
+            }
+        });
+
+        //5.Botón Eliminar (por ID)
+        btnEliminarDLL.setOnAction(e -> {
+            String id = txtIdDLL.getText().trim();
+            if (id.isEmpty()) { appendLogDLL("⚠ Ingrese un ID para eliminar."); return; }
+            try {
+                Employee found = findById(id);
+                if (found != null) {
+                    dll.remove(found);
+                    appendLogDLL("🗑 Eliminado: " + found);
+                    currentEmployee = null;
+                    refreshTableDLL();
+                    refreshCanvasDLL();
+                    clearFormDLL();
+                } else {
+                    appendLogDLL("✖ No existe empleado con ID: " + id);
+                }
+            } catch (ListException ex) {
+                appendLogDLL("✖ Error: " + ex.getMessage());
+            }
+        });
+
+        //6.Eliminar Inicio
+        btnEliminarInicioDLL.setOnAction(e -> {
+            try {
+                Employee removed = (Employee) dll.removeFirst();
+                appendLogDLL("🗑 Eliminado del inicio: " + removed);
+                currentEmployee = null;
+                refreshTableDLL();
+                refreshCanvasDLL();
+                clearFormDLL();
+            } catch (ListException ex) {
+                appendLogDLL("✖ " + ex.getMessage());
+            }
+        });
+
+        //7.Eliminar Final
+        btnEliminarFinalDLL.setOnAction(e -> {
+            try {
+                Employee removed = (Employee) dll.removeLast();
+                appendLogDLL("🗑 Eliminado del final: " + removed);
+                currentEmployee = null;
+                refreshTableDLL();
+                refreshCanvasDLL();
+                clearFormDLL();
+            } catch (ListException ex) {
+                appendLogDLL("✖ " + ex.getMessage());
+            }
+        });
+
+        //8.Primero
+        btnPrimeroDLL.setOnAction(e -> {
+            try {
+                currentEmployee = (Employee) dll.getFirst();
+                fillFormDLL(currentEmployee);
+                appendLogDLL("⏮ Primero: " + currentEmployee);
+            } catch (ListException ex) {
+                appendLogDLL("✖ " + ex.getMessage());
+            }
+        });
+
+        //9.Último
+        btnUltimoDLL.setOnAction(e -> {
+            try {
+                currentEmployee = (Employee) dll.getLast();
+                fillFormDLL(currentEmployee);
+                appendLogDLL("⏭ Último: " + currentEmployee);
+            } catch (ListException ex) {
+                appendLogDLL("✖ " + ex.getMessage());
+            }
+        });
+
+        //10.Anterior
+        btnAnteriorDLL.setOnAction(e -> {
+            if (currentEmployee == null) {
+                appendLogDLL("⚠ Primero seleccione un empleado.");
+                return;
+            }
+            try {
+                Employee prev = (Employee) dll.getPrev(currentEmployee);
+                if (prev != null) {
+                    currentEmployee = prev;
+                    fillFormDLL(currentEmployee);
+                    appendLogDLL("◀ Anterior: " + currentEmployee);
+                } else {
+                    appendLogDLL("⚠ Ya estás en el primer elemento.");
+                }
+            } catch (ListException ex) {
+                appendLogDLL("✖ " + ex.getMessage());
+            }
+        });
+
+        //11.Siguiente
+        btnSiguienteDLL.setOnAction(e -> {
+            if (currentEmployee == null) {
+                appendLogDLL("⚠ Primero seleccione un empleado.");
+                return;
+            }
+            try {
+                Employee next = (Employee) dll.getNext(currentEmployee);
+                if (next != null) {
+                    currentEmployee = next;
+                    fillFormDLL(currentEmployee);
+                    appendLogDLL("▶ Siguiente: " + currentEmployee);
+                } else {
+                    appendLogDLL("⚠ Ya estás en el último elemento.");
+                }
+            } catch (ListException ex) {
+                appendLogDLL("✖ " + ex.getMessage());
+            }
+        });
+
+        //12.Limpiar Todo
+        btnLimpiarTodoDLL.setOnAction(e -> {
+            dll.clear();
+            currentEmployee = null;
+            tableDoublyLinkedList.getItems().clear();
+            txtRepresentacionDLL.setText("NULL ↔ HEAD ↔ NULL");
+            txtRegistroOperacionesDLL.clear();
+            clearFormDLL();
+            refreshCanvasDLL();
+            appendLogDLL("↺ Lista limpiada.");
+        });
+
+        //esto es solo permite números en el campo ID
+        txtIdDLL.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("\\d*")) {
+                txtIdDLL.setText(newVal.replaceAll("[^\\d]", ""));
+            }
+        });
+    }
+
+//Helpers DLL
+    private void refreshTableDLL() {
+        ObservableList<Employee> items = FXCollections.observableArrayList();
+        try {
+            if (!dll.isEmpty()) {
+                int size = dll.size();
+                for (int i = 1; i <= size; i++) {
+                    items.add((Employee) dll.get(i));
+                }
+            }
+        } catch (ListException ex) { /* lista vacía */ }
+        tableDoublyLinkedList.setItems(items);
+
+        try {
+            txtRepresentacionDLL.setText(dll.isEmpty() ? "NULL ↔ HEAD ↔ NULL" : dll.toString());
+        } catch (Exception ignored) {}
+    }
+
+    private void refreshCanvasDLL() {
+        javafx.scene.canvas.GraphicsContext gc = canvasDoublyLinkedList.getGraphicsContext2D();
+        double w = canvasDoublyLinkedList.getWidth();
+        double h = canvasDoublyLinkedList.getHeight();
+        gc.clearRect(0, 0, w, h);
+
+        if (dll.isEmpty()) {
+            gc.setFill(javafx.scene.paint.Color.web("#8896A5"));
+            gc.setFont(javafx.scene.text.Font.font("Courier New", 13));
+            gc.fillText("NULL ↔ HEAD ↔ NULL", 20, h / 2);
+            return;
+        }
+
+        try {
+            int size = dll.size();
+            double nodeW = 90, nodeH = 44, gap = 28;
+            double totalW = size * nodeW + (size - 1) * gap;
+            //expande el canvas si hace falta
+            if (totalW + 40 > w) {
+                canvasDoublyLinkedList.setWidth(totalW + 40);
+                w = canvasDoublyLinkedList.getWidth();
+            }
+            double startX = 20, y = (h - nodeH) / 2;
+
+            for (int i = 1; i <= size; i++) {
+                Employee emp = (Employee) dll.get(i);
+                double x = startX + (i - 1) * (nodeW + gap);
+
+                //caja del nodo
+                boolean isCurrent = emp.equals(currentEmployee);
+                gc.setFill(isCurrent
+                        ? javafx.scene.paint.Color.web("#1A8C7B")
+                        : javafx.scene.paint.Color.web("#1F3868"));
+                gc.fillRoundRect(x, y, nodeW, nodeH, 8, 8);
+
+                //Texto: ID + nombre
+                gc.setFill(javafx.scene.paint.Color.WHITE);
+                gc.setFont(javafx.scene.text.Font.font("Courier New", 10));
+                String label = emp.getId();
+                String name  = emp.getName().length() > 10
+                        ? emp.getName().substring(0, 10) + "…"
+                        : emp.getName();
+                gc.fillText(label, x + 8, y + 16);
+                gc.fillText(name,  x + 8, y + 30);
+
+                //Flecha ↔ entre nodos
+                if (i < size) {
+                    double ax = x + nodeW + 2;
+                    double ay = y + nodeH / 2;
+                    gc.setStroke(javafx.scene.paint.Color.web("#4A90D9"));
+                    gc.setLineWidth(1.5);
+                    gc.strokeLine(ax, ay, ax + gap - 4, ay);
+                    //Punta derecha →
+                    gc.strokeLine(ax + gap - 4, ay, ax + gap - 10, ay - 5);
+                    gc.strokeLine(ax + gap - 4, ay, ax + gap - 10, ay + 5);
+                    //Punta izquierda ←
+                    gc.strokeLine(ax, ay, ax + 6, ay - 5);
+                    gc.strokeLine(ax, ay, ax + 6, ay + 5);
+                }
+            }
+
+            //etiquetas HEAD / TAIL
+            gc.setFill(javafx.scene.paint.Color.web("#4A90D9"));
+            gc.setFont(javafx.scene.text.Font.font("Courier New", javafx.scene.text.FontWeight.BOLD, 10));
+            gc.fillText("HEAD", startX, y - 6);
+            double lastX = startX + (size - 1) * (nodeW + gap);
+            gc.fillText("TAIL", lastX + nodeW - 30, y - 6);
+
+        } catch (ListException ex) { /* no dibuja */ }
+    }
+
+    private void fillFormDLL(Employee emp) {
+        txtIdDLL.setText(emp.getId());
+        txtNameDLL.setText(emp.getName());
+        cmbJobPositionDLL.setValue(emp.getJobPosition());
+        dpHireDateDLL.setValue(emp.getHireDate());
+    }
+
+    private void clearFormDLL() {
+        txtIdDLL.clear();
+        txtNameDLL.clear();
+        cmbJobPositionDLL.setValue("Choose");
+        dpHireDateDLL.setValue(null);
+    }
+
+    private void appendLogDLL(String msg) {
+        String current = txtRegistroOperacionesDLL.getText();
+        String ts = java.time.LocalTime.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+        txtRegistroOperacionesDLL.setText(
+                (current.isEmpty() ? "" : current + "\n") + "[" + ts + "] " + msg);
+    }
+
+    private Employee findById(String id) throws ListException {
+        if (dll.isEmpty()) return null;
+        int size = dll.size();
+        for (int i = 1; i <= size; i++) {
+            Employee e = (Employee) dll.get(i);
+            if (e.getId().equals(id)) return e;
+        }
+        return null;
     }
 }
