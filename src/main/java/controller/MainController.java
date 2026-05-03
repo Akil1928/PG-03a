@@ -1,31 +1,34 @@
 package controller;
 
-import javafx.animation.Timeline;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import model.LinkedList;
+import model.ListException;
 import model.Painter;
 import model.Probabilistic;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.cell.PropertyValueFactory;
-import model.DoublyLinkedList;
-import model.Employee;
-import model.ListException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.*;
+import java.util.Random;
+import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
+    // =========================================================================
+    // FXML Elements - General
+    // =========================================================================
     @FXML
     private TabPane mainTabPane;
+
+    // =========================================================================
+    // FXML Elements - Pestaña Miller-Rabin
+    // =========================================================================
     @FXML
     private Button btnGenerar;
     @FXML
@@ -35,11 +38,11 @@ public class MainController implements Initializable {
     @FXML
     private ListView listRegistroOperaciones;
     @FXML
-    private Spinner <BigInteger> spinnerRounds;
+    private Spinner<BigInteger> spinnerRounds;
     @FXML
-    private Button btnLimpiarTodo;
+    private Button btnLimpiarTodo; // Considerar renombrar si es específico de Miller-Rabin
     @FXML
-    private Label lblCanvasHint;
+    private Label lblCanvasHint; // Considerar renombrar si es específico de Miller-Rabin
     @FXML
     private TableView tableMillerRabin;
     @FXML
@@ -51,19 +54,9 @@ public class MainController implements Initializable {
     @FXML
     private Label lblBigInteger;
 
-
-    //TAB 1 - Atributos Internos
-    BigInteger min = new BigInteger("0");
-    BigInteger max = new BigInteger("1000000000000000000000000000");
-    BigInteger initial = new BigInteger("10000000000000000000000");
-    BigInteger step = new BigInteger("1");
-
-    // TAB DLL - Atributos internos
-    private DoublyLinkedList<Employee> dll = new DoublyLinkedList<>();
-    private Employee currentEmployee = null; //empleado seleccionado por navegación
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-
+    // =========================================================================
+    // FXML Elements - Pestaña Random Search
+    // =========================================================================
     @FXML
     private ListView listRegistroOperacionesRS;
     @FXML
@@ -91,17 +84,27 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn colValor;
     @FXML
-    private Button btnUltimoDLL;
+    private Label lblResultadoBusquedaRS;
     @FXML
-    private TextField txtValueLinkedList;
+    private TextArea txtInfoRS;
+    @FXML
+    private Slider sliderArraySizeRS;
+    @FXML
+    private Label lblArrayRS;
+    @FXML
+    private Label lblNoEncontradoRS;
+
+    // =========================================================================
+    // FXML Elements - Pestaña Doubly Linked List (DLL)
+    // =========================================================================
+    @FXML
+    private Button btnUltimoDLL;
     @FXML
     private Button btnAgregarDLL;
     @FXML
     private Button btnEliminarInicioDLL;
     @FXML
     private Button btnAnteriorDLL;
-    @FXML
-    private TableColumn colElemento;
     @FXML
     private Button btnSiguienteDLL;
     @FXML
@@ -111,149 +114,400 @@ public class MainController implements Initializable {
     @FXML
     private Canvas canvasDoublyLinkedList;
     @FXML
-    private TableColumn <Employee, String> colNombreDLL;
+    private TableColumn colNombreDLL;
     @FXML
-    private Button btnLimpiarLinkedList;
+    private TableView tableDoublyLinkedList;
     @FXML
-    private TableColumn colSeInserto;
-    @FXML
-    private TableView <Employee> tableDoublyLinkedList;
-    @FXML
-    private Button btnBuscar;
-    @FXML
-    private ListView listRegistroOperacionesLL;
-    @FXML
-    private TableColumn <Employee, String> colFechaIngresoDLL;
+    private TableColumn colFechaIngresoDLL;
     @FXML
     private Button btnLimpiarTodoDLL;
     @FXML
     private Button btnPrimeroDLL;
     @FXML
-    private TableColumn <Employee, String> colIdDLL;
+    private TableColumn colIdDLL;
     @FXML
     private TextArea txtRepresentacionDLL;
     @FXML
     private Button btnBuscarDLL;
     @FXML
-    private Button btnAgregarFinal;
-    @FXML
-    private Button btnEliminarDLL;
-    @FXML
-    private TableView tableLinkedList;
-    @FXML
     private Button btnEliminarFinalDLL;
-    @FXML
-    private Canvas canvasLinkedList;
-    @FXML
-    private Button btnEliminar;
-    @FXML
-    private TableColumn colPosicion;
     @FXML
     private TextField txtNameDLL;
     @FXML
-    private Button btnAgregarInicio;
-    @FXML
-    private TableColumn <Employee, String> colPuestoDLL;
+    private TableColumn colPuestoDLL;
     @FXML
     private DatePicker dpHireDateDLL;
     @FXML
-    private Label lblResultadoBusquedaRS;
+    private TextArea txtInfoDLL;
+    @FXML
+    private TextArea txtRegistroOperacionesDLL;
+
+    // =========================================================================
+    // FXML Elements - Pestaña Linked List (LL)
+    // =========================================================================
+    @FXML
+    private TextField txtValueLinkedList;
+    @FXML
+    private TableColumn<Integer, Integer> colElemento; // Columna para el elemento
+    @FXML
+    private TableColumn<Integer, Integer> colPosicion; // Columna para la posición actual
+    // @FXML private TableColumn<LinkedListOperationEntry, String> colSeInserto; // Eliminado: No relevante para vista en vivo
+    @FXML
+    private Button btnLimpiarLinkedList; // Esto es para limpiar la LinkedList
+    @FXML
+    private Button btnBuscar; // Esto es para buscar en LinkedList
+    @FXML
+    private ListView listRegistroOperacionesLL;
+    @FXML
+    private Button btnAgregarFinal; // Esto es para agregar al final en LinkedList
+    @FXML
+    private Button btnEliminarDLL; // Este FXML ID parece duplicado, se usa para eliminar en LL
+    @FXML
+    private TableView<Integer> tableLinkedList; // Especificar tipo para TableView
+    @FXML
+    private Canvas canvasLinkedList;
+    @FXML
+    private Button btnEliminar; // Este FXML ID parece duplicado, se usa para eliminar en LL
+    @FXML
+    private Button btnAgregarInicio; // Esto es para agregar al inicio en LinkedList
     @FXML
     private TextArea txtInfoLL;
     @FXML
     private TextArea txtRepresentacionLL;
     @FXML
     private Label lblResultadoLL;
-    @FXML
-    private TextArea txtInfoRS;
-    @FXML
-    private Slider sliderArraySizeRS;
-    @FXML
-    private TextArea txtInfoDLL;
-    @FXML
-    private Label lblArrayRS;
-    @FXML
-    private Label lblNoEncontradoRS;
-    @FXML
-    private TextArea txtRegistroOperacionesDLL;
 
+    // =========================================================================
+    // Atributos Internos - Miller-Rabin
+    // =========================================================================
+    BigInteger min = new BigInteger("0");
+    BigInteger max = new BigInteger("1000000000000000000000000000");
+    BigInteger initial = new BigInteger("10000000000000000000000");
+    BigInteger step = new BigInteger("1");
+
+    // =========================================================================
+    // Atributos Internos - LinkedList
+    // =========================================================================
+    private LinkedList<Integer> linkedList;
+    private ObservableList<String> linkedListOperationsLog;
+    private ObservableList<Integer> linkedListTableData; // Ahora ObservableList<Integer>
+
+    // =========================================================================
+    // Inicialización del Controlador
+    // =========================================================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupMillerRabin();
-        setupDoublyLinkedList();
+        try {
+            setupLinkedList();
+        } catch (ListException e) {
+            showAlert("Error de Inicialización", "No se pudo inicializar la LinkedList: " + e.getMessage());
+        }
+        // setupRandomSearch(); // Pendiente de implementación
+        // setupDoublyLinkedList(); // Pendiente de implementación
     }
 
+    // =========================================================================
+    // Métodos de Configuración
+    // =========================================================================
+
+    /**
+     * Configura los componentes de la pestaña de Miller-Rabin.
+     */
     private void setupMillerRabin() {
-        // 1. Configuración de la fábrica (clase interna detallada abajo)
+        // 1. Configuración de la fábrica del Spinner
         spinnerRounds.setValueFactory(new BigIntegerSpinnerValueFactory(min, max, initial, step));
         spinnerRounds.setEditable(true);
 
-        // 2. Funcionalidad del botón Generar
+        // 2. Funcionalidad del botón Generar número aleatorio
         btnGenerar.setOnAction(actionEvent -> {
             BigInteger numeroAleatorio = generarBigIntegerAleatorio(min, max);
             spinnerRounds.getValueFactory().setValue(numeroAleatorio);
-            // Actualizamos el label de una vez para que se vea el cambio
             lblBigInteger.setText(numeroAleatorio.toString());
         });
 
-        // 3. Listener del Spinner
+        // 3. Listener del Spinner para actualizar el Label
         spinnerRounds.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue != null) {
                 lblBigInteger.setText(newValue.toString());
             }
         });
 
-        // 4. Botón Miller Rabin (Agrupando lógica para evitar que se pisen)
+        // 4. Botón Miller Rabin para ejecutar la prueba
         btnMillerRabin.setOnAction(actionEvent -> {
             runMillerRabin();
-            // reset(1); // Opcional si quieres limpiar canvas al ejecutar
+            // reset(1); // Opcional si se desea limpiar el canvas al ejecutar
         });
 
+        // 5. Botón para limpiar el campo del número grande
         btnLimpiarCampo.setOnAction(actionEvent -> lblBigInteger.setText(""));
     }
 
+    /**
+     * Configura los componentes de la pestaña de LinkedList.
+     */
+    private void setupLinkedList() throws ListException {
+        linkedList = new LinkedList<>();
+        linkedListOperationsLog = FXCollections.observableArrayList();
+        listRegistroOperacionesLL.setItems(linkedListOperationsLog);
+
+        // Inicializar linkedListTableData y enlazar a tableLinkedList
+        linkedListTableData = FXCollections.observableArrayList();
+        tableLinkedList.setItems(linkedListTableData);
+
+        // Configurar las columnas de la tabla para la vista en vivo de la LinkedList
+        colElemento.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue()).asObject());
+        colPosicion.setCellValueFactory(param -> new SimpleIntegerProperty(tableLinkedList.getItems().indexOf(param.getValue()) + 1).asObject());
+        // colSeInserto ya no es relevante para esta vista y se asume que se ha eliminado del FXML
+
+        // Asignar manejadores de eventos a los botones
+        btnAgregarInicio.setOnAction(event -> {
+            try {
+                handleAddFirstLL();
+            } catch (ListException e) {
+                showAlert("Error en la lista", e.getMessage());
+            }
+        });
+        btnAgregarFinal.setOnAction(event -> {
+            try {
+                handleAddLastLL();
+            } catch (ListException e) {
+                showAlert("Error en la lista", e.getMessage());
+            }
+        });
+        btnEliminar.setOnAction(event -> {
+            try {
+                handleRemoveLL();
+            } catch (ListException e) {
+                showAlert("Error en la lista", e.getMessage());
+            }
+        });
+        btnBuscar.setOnAction(event -> {
+            try {
+                handleSearchLL();
+            } catch (ListException e) {
+                showAlert("Error en la lista", e.getMessage());
+            }
+        });
+        btnLimpiarLinkedList.setOnAction(event -> {
+            try {
+                handleClearLL();
+            } catch (ListException e) {
+                showAlert("Error en la lista", e.getMessage());
+            }
+        });
+
+        refreshLinkedListView(); // Actualizar la vista inicial de la lista
+    }
+
+    // =========================================================================
+    // Métodos de Manejo de Eventos - Miller-Rabin
+    // =========================================================================
+
+    /**
+     * Genera un número BigInteger aleatorio dentro de un rango especificado.
+     * @param minimo El valor mínimo (inclusive).
+     * @param maximo El valor máximo (inclusive).
+     * @return Un BigInteger aleatorio.
+     */
     private BigInteger generarBigIntegerAleatorio(BigInteger minimo, BigInteger maximo) {
         Random rnd = new Random();
         BigInteger res;
         do {
-            //generamos un número con la cantidad de bits necesaria para el máximo
             res = new BigInteger(maximo.bitLength(), rnd);
         } while (res.compareTo(minimo) < 0 || res.compareTo(maximo) > 0);
-
         return res;
     }
 
+    /**
+     * Ejecuta la prueba de primalidad de Miller-Rabin y actualiza el registro de operaciones.
+     */
     private void runMillerRabin() {
         Probabilistic probabilistic = new Probabilistic();
         String result = probabilistic.millerRabin(lblBigInteger.getText());
         ObservableList<String> items = FXCollections.observableArrayList();
-        if(result.contains("is probably prime")) {
-            //tenemos que agregarlo al table view
-            items.add(result+" ✔");
-        }else{
-            items.add(result+" ❌");
+        if (result.contains("is probably prime")) {
+            items.add(result + " ✔");
+        } else {
+            items.add(result + " ❌");
         }
         listRegistroOperaciones.setItems(items);
     }
 
+    // =========================================================================
+    // Métodos de Manejo de Eventos - LinkedList
+    // =========================================================================
 
-private void reset(int index) {
+    /**
+     * Maneja la acción de agregar un elemento al inicio de la LinkedList.
+     */
+    private void handleAddFirstLL() throws ListException {
+        try {
+            Integer value = Integer.parseInt(txtValueLinkedList.getText());
+            linkedList.addFirst(value);
+            linkedListOperationsLog.add("Agregado " + value + " al inicio. Estado: " + linkedList.toString());
+            lblResultadoLL.setText("Último elemento insertado: " + value + " (Inicio)");
+            refreshLinkedListView();
+        } catch (NumberFormatException e) {
+            showAlert("Error de entrada", "Por favor, ingrese un número válido.");
+        }
+    }
+
+    /**
+     * Maneja la acción de agregar un elemento al final de la LinkedList.
+     */
+    private void handleAddLastLL() throws ListException {
+        try {
+            Integer value = Integer.parseInt(txtValueLinkedList.getText());
+            linkedList.add(value);
+            linkedListOperationsLog.add("Agregado " + value + " al final. Estado: " + linkedList.toString());
+            lblResultadoLL.setText("Último elemento insertado: " + value + " (Final)");
+            refreshLinkedListView();
+        } catch (NumberFormatException e) {
+            showAlert("Error de entrada", "Por favor, ingrese un número válido.");
+        }
+    }
+
+    /**
+     * Maneja la acción de eliminar un elemento de la LinkedList.
+     */
+    private void handleRemoveLL() throws ListException {
+        try {
+            Integer value = Integer.parseInt(txtValueLinkedList.getText());
+            if (linkedList.contains(value)) {
+                linkedList.remove(value);
+                linkedListOperationsLog.add("Eliminado " + value + " de la lista. Estado: " + linkedList.toString());
+            } else {
+                linkedListOperationsLog.add("Se intentó eliminar " + value + ", pero no se encontró. Estado: " + linkedList.toString());
+            }
+            refreshLinkedListView();
+        } catch (NumberFormatException e) {
+            showAlert("Error de entrada", "Por favor, ingrese un número válido.");
+        } catch (ListException e) {
+            showAlert("Error en la lista", e.getMessage());
+        }
+    }
+
+    /**
+     * Maneja la acción de buscar un elemento en la LinkedList.
+     */
+    private void handleSearchLL() throws ListException {
+        try {
+            Integer value = Integer.parseInt(txtValueLinkedList.getText());
+            if (linkedList.contains(value)) {
+                int index = linkedList.indexOf(value);
+                lblResultadoLL.setText("Valor " + value + " encontrado en la posición " + index + ".");
+                linkedListOperationsLog.add("Buscado " + value + ": Encontrado en la posición " + index + ". Estado: " + linkedList.toString());
+            } else {
+                lblResultadoLL.setText("Valor " + value + " no encontrado.");
+                linkedListOperationsLog.add("Buscado " + value + ": No encontrado. Estado: " + linkedList.toString());
+            }
+            refreshLinkedListView();
+        } catch (NumberFormatException e) {
+            showAlert("Error de entrada", "Por favor, ingrese un número válido.");
+            lblResultadoLL.setText("Error: Entrada inválida.");
+        } catch (ListException e) {
+            showAlert("Error en la lista", e.getMessage());
+            lblResultadoLL.setText("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Maneja la acción de limpiar la LinkedList.
+     */
+    private void handleClearLL() throws ListException {
+        linkedList.clear();
+        linkedListOperationsLog.add("Lista limpiada. Estado: " + linkedList.toString());
+        refreshLinkedListView();
+    }
+
+    // =========================================================================
+    // Métodos Auxiliares
+    // =========================================================================
+
+    /**
+     * Actualiza la representación visual de la LinkedList en la interfaz de usuario.
+     */
+    private void refreshLinkedListView() throws ListException {
+        // No es necesario un try-catch aquí para linkedList.size() o isEmpty()
+        // ya que size() ahora devuelve 0 y isEmpty() es seguro.
+        txtRepresentacionLL.setText(linkedList.toString());
+        txtInfoLL.setText("Tamaño: " + linkedList.size() + "\nVacía: " + linkedList.isEmpty());
+        // lblResultadoLL.setText(""); // Esta línea se eliminó para permitir que lblResultadoLL persista mensajes de inserción
+
+        // Actualizar tableLinkedList (vista en vivo)
+        linkedListTableData.clear();
+        if (!linkedList.isEmpty()) { // isEmpty() es seguro
+            for (int i = 1; i <= linkedList.size(); i++) { // size() es seguro
+                try {
+                    linkedListTableData.add(linkedList.get(i)); // get(i) puede lanzar ListException
+                } catch (ListException e) {
+                    System.err.println("Error al obtener elemento para tableLinkedList: " + e.getMessage());
+                    // Manejar el error, por ejemplo, mostrando una alerta o registrándolo
+                }
+            }
+        }
+
+        // Actualizar canvasLinkedList
+        try {
+            if (linkedList.isEmpty()) { // isEmpty() es seguro
+                Painter.paintEmpty(canvasLinkedList, "Lista Vacía");
+            } else {
+                Painter.paintLinkedList(canvasLinkedList, linkedList); // paintLinkedList puede lanzar ListException
+            }
+        } catch (ListException e) {
+            System.err.println("Error al pintar la LinkedList: " + e.getMessage());
+            Painter.paintEmpty(canvasLinkedList, "Error al cargar la representación gráfica");
+        }
+    }
+
+    /**
+     * Muestra una alerta de error al usuario.
+     * @param title El título de la alerta.
+     * @param message El mensaje de la alerta.
+     */
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Reinicia los componentes de una pestaña específica.
+     * @param index El índice de la pestaña a reiniciar (1 para Miller-Rabin).
+     */
+    private void reset(int index) {
         switch (index) {
-            case 1: //Tab 1
-                Painter.paintEmpty(canvasMillerRabin,"Presione Miller Rabin para comenzar");
+            case 1: // Pestaña Miller-Rabin
+                Painter.paintEmpty(canvasMillerRabin, "Presione Miller Rabin para comenzar");
                 listRegistroOperaciones.getItems().clear();
                 break;
-            case 2:
+            case 2: // Pestaña Random Search
+                // Lógica de reinicio para Random Search
+                break;
+            case 3: // Pestaña Doubly Linked List
+                // Lógica de reinicio para Doubly Linked List
+                break;
+            case 4: // Pestaña Linked List
+                // Lógica de reinicio para Linked List
                 break;
         }
-}
-    //agrega esto al final de tu MainController o como clase interna
+    }
+
+    // =========================================================================
+    // Clases Internas
+    // =========================================================================
+
+    /**
+     * Fábrica de valores para un Spinner que maneja objetos BigInteger.
+     */
     public static class BigIntegerSpinnerValueFactory extends SpinnerValueFactory<BigInteger> {
         private final BigInteger step;
 
         public BigIntegerSpinnerValueFactory(BigInteger min, BigInteger max, BigInteger initialValue, BigInteger step) {
             this.step = step;
-            //definimos los límites
             this.setValue(initialValue);
 
             this.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -273,319 +527,5 @@ private void reset(int index) {
             BigInteger newValue = getValue().add(step.multiply(BigInteger.valueOf(steps)));
             setValue(newValue);
         }
-    }
-
-    private void setupDoublyLinkedList() {
-
-        //1.ComboBox de puestos
-        cmbJobPositionDLL.getItems().addAll(
-                "Choose", "Docente", "Informática/e", "Arquitectura/e",
-                "Medicina", "Ingeniería", "Administración", "Recursos Humanos"
-        );
-        cmbJobPositionDLL.setValue("Choose");
-
-        //2.Columnas de la tabla
-        colIdDLL.setCellValueFactory(data ->
-                new SimpleStringProperty(((Employee) data.getValue()).getId()));
-        colNombreDLL.setCellValueFactory(data ->
-                new SimpleStringProperty(((Employee) data.getValue()).getName()));
-        colPuestoDLL.setCellValueFactory(data ->
-                new SimpleStringProperty(((Employee) data.getValue()).getJobPosition()));
-        colFechaIngresoDLL.setCellValueFactory(data ->
-                new SimpleStringProperty(
-                        ((Employee) data.getValue()).getHireDate() != null
-                                ? ((Employee) data.getValue()).getHireDate().format(DATE_FMT)
-                                : ""));
-
-        //3.Botón Agregar
-        btnAgregarDLL.setOnAction(e -> {
-            String id   = txtIdDLL.getText().trim();
-            String name = txtNameDLL.getText().trim();
-            String job  = (String) cmbJobPositionDLL.getValue();
-            LocalDate date = dpHireDateDLL.getValue();
-
-            if (id.isEmpty() || name.isEmpty() || date == null || "Choose".equals(job)) {
-                appendLogDLL("⚠ Complete todos los campos antes de agregar.");
-                return;
-            }
-            Employee emp = new Employee(id, name, job, date);
-            dll.add(emp);
-            appendLogDLL("✔ Agregado: " + emp);
-            refreshTableDLL();
-            refreshCanvasDLL();
-            clearFormDLL();
-        });
-
-        //4.Botón Buscar (por ID)
-        btnBuscarDLL.setOnAction(e -> {
-            String id = txtIdDLL.getText().trim();
-            if (id.isEmpty()) {
-                appendLogDLL("⚠ Ingrese un ID para buscar.");
-                return;
-            }
-            try {
-                Employee found = findById(id);
-                if (found != null) {
-                    currentEmployee = found;
-                    fillFormDLL(found);
-                    appendLogDLL("🔍 Encontrado: " + found);
-                } else {
-                    appendLogDLL("✖ No se encontró empleado con ID: " + id);
-                }
-            } catch (ListException ex) {
-                appendLogDLL("✖ Error: " + ex.getMessage());
-            }
-        });
-
-        //5.Botón Eliminar (por ID)
-        btnEliminarDLL.setOnAction(e -> {
-            String id = txtIdDLL.getText().trim();
-            if (id.isEmpty()) { appendLogDLL("⚠ Ingrese un ID para eliminar."); return; }
-            try {
-                Employee found = findById(id);
-                if (found != null) {
-                    dll.remove(found);
-                    appendLogDLL("🗑 Eliminado: " + found);
-                    currentEmployee = null;
-                    refreshTableDLL();
-                    refreshCanvasDLL();
-                    clearFormDLL();
-                } else {
-                    appendLogDLL("✖ No existe empleado con ID: " + id);
-                }
-            } catch (ListException ex) {
-                appendLogDLL("✖ Error: " + ex.getMessage());
-            }
-        });
-
-        //6.Eliminar Inicio
-        btnEliminarInicioDLL.setOnAction(e -> {
-            try {
-                Employee removed = (Employee) dll.removeFirst();
-                appendLogDLL("🗑 Eliminado del inicio: " + removed);
-                currentEmployee = null;
-                refreshTableDLL();
-                refreshCanvasDLL();
-                clearFormDLL();
-            } catch (ListException ex) {
-                appendLogDLL("✖ " + ex.getMessage());
-            }
-        });
-
-        //7.Eliminar Final
-        btnEliminarFinalDLL.setOnAction(e -> {
-            try {
-                Employee removed = (Employee) dll.removeLast();
-                appendLogDLL("🗑 Eliminado del final: " + removed);
-                currentEmployee = null;
-                refreshTableDLL();
-                refreshCanvasDLL();
-                clearFormDLL();
-            } catch (ListException ex) {
-                appendLogDLL("✖ " + ex.getMessage());
-            }
-        });
-
-        //8.Primero
-        btnPrimeroDLL.setOnAction(e -> {
-            try {
-                currentEmployee = (Employee) dll.getFirst();
-                fillFormDLL(currentEmployee);
-                appendLogDLL("⏮ Primero: " + currentEmployee);
-            } catch (ListException ex) {
-                appendLogDLL("✖ " + ex.getMessage());
-            }
-        });
-
-        //9.Último
-        btnUltimoDLL.setOnAction(e -> {
-            try {
-                currentEmployee = (Employee) dll.getLast();
-                fillFormDLL(currentEmployee);
-                appendLogDLL("⏭ Último: " + currentEmployee);
-            } catch (ListException ex) {
-                appendLogDLL("✖ " + ex.getMessage());
-            }
-        });
-
-        //10.Anterior
-        btnAnteriorDLL.setOnAction(e -> {
-            if (currentEmployee == null) {
-                appendLogDLL("⚠ Primero seleccione un empleado.");
-                return;
-            }
-            try {
-                Employee prev = (Employee) dll.getPrev(currentEmployee);
-                if (prev != null) {
-                    currentEmployee = prev;
-                    fillFormDLL(currentEmployee);
-                    appendLogDLL("◀ Anterior: " + currentEmployee);
-                } else {
-                    appendLogDLL("⚠ Ya estás en el primer elemento.");
-                }
-            } catch (ListException ex) {
-                appendLogDLL("✖ " + ex.getMessage());
-            }
-        });
-
-        //11.Siguiente
-        btnSiguienteDLL.setOnAction(e -> {
-            if (currentEmployee == null) {
-                appendLogDLL("⚠ Primero seleccione un empleado.");
-                return;
-            }
-            try {
-                Employee next = (Employee) dll.getNext(currentEmployee);
-                if (next != null) {
-                    currentEmployee = next;
-                    fillFormDLL(currentEmployee);
-                    appendLogDLL("▶ Siguiente: " + currentEmployee);
-                } else {
-                    appendLogDLL("⚠ Ya estás en el último elemento.");
-                }
-            } catch (ListException ex) {
-                appendLogDLL("✖ " + ex.getMessage());
-            }
-        });
-
-        //12.Limpiar Todo
-        btnLimpiarTodoDLL.setOnAction(e -> {
-            dll.clear();
-            currentEmployee = null;
-            tableDoublyLinkedList.getItems().clear();
-            txtRepresentacionDLL.setText("NULL ↔ HEAD ↔ NULL");
-            txtRegistroOperacionesDLL.clear();
-            clearFormDLL();
-            refreshCanvasDLL();
-            appendLogDLL("↺ Lista limpiada.");
-        });
-
-        //esto es solo permite números en el campo ID
-        txtIdDLL.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*")) {
-                txtIdDLL.setText(newVal.replaceAll("[^\\d]", ""));
-            }
-        });
-    }
-
-//Helpers DLL
-    private void refreshTableDLL() {
-        ObservableList<Employee> items = FXCollections.observableArrayList();
-        try {
-            if (!dll.isEmpty()) {
-                int size = dll.size();
-                for (int i = 1; i <= size; i++) {
-                    items.add((Employee) dll.get(i));
-                }
-            }
-        } catch (ListException ex) { /* lista vacía */ }
-        tableDoublyLinkedList.setItems(items);
-
-        try {
-            txtRepresentacionDLL.setText(dll.isEmpty() ? "NULL ↔ HEAD ↔ NULL" : dll.toString());
-        } catch (Exception ignored) {}
-    }
-
-    private void refreshCanvasDLL() {
-        javafx.scene.canvas.GraphicsContext gc = canvasDoublyLinkedList.getGraphicsContext2D();
-        double w = canvasDoublyLinkedList.getWidth();
-        double h = canvasDoublyLinkedList.getHeight();
-        gc.clearRect(0, 0, w, h);
-
-        if (dll.isEmpty()) {
-            gc.setFill(javafx.scene.paint.Color.web("#8896A5"));
-            gc.setFont(javafx.scene.text.Font.font("Courier New", 13));
-            gc.fillText("NULL ↔ HEAD ↔ NULL", 20, h / 2);
-            return;
-        }
-
-        try {
-            int size = dll.size();
-            double nodeW = 90, nodeH = 44, gap = 28;
-            double totalW = size * nodeW + (size - 1) * gap;
-            //expande el canvas si hace falta
-            if (totalW + 40 > w) {
-                canvasDoublyLinkedList.setWidth(totalW + 40);
-                w = canvasDoublyLinkedList.getWidth();
-            }
-            double startX = 20, y = (h - nodeH) / 2;
-
-            for (int i = 1; i <= size; i++) {
-                Employee emp = (Employee) dll.get(i);
-                double x = startX + (i - 1) * (nodeW + gap);
-
-                //caja del nodo
-                boolean isCurrent = emp.equals(currentEmployee);
-                gc.setFill(isCurrent
-                        ? javafx.scene.paint.Color.web("#1A8C7B")
-                        : javafx.scene.paint.Color.web("#1F3868"));
-                gc.fillRoundRect(x, y, nodeW, nodeH, 8, 8);
-
-                //Texto: ID + nombre
-                gc.setFill(javafx.scene.paint.Color.WHITE);
-                gc.setFont(javafx.scene.text.Font.font("Courier New", 10));
-                String label = emp.getId();
-                String name  = emp.getName().length() > 10
-                        ? emp.getName().substring(0, 10) + "…"
-                        : emp.getName();
-                gc.fillText(label, x + 8, y + 16);
-                gc.fillText(name,  x + 8, y + 30);
-
-                //Flecha ↔ entre nodos
-                if (i < size) {
-                    double ax = x + nodeW + 2;
-                    double ay = y + nodeH / 2;
-                    gc.setStroke(javafx.scene.paint.Color.web("#4A90D9"));
-                    gc.setLineWidth(1.5);
-                    gc.strokeLine(ax, ay, ax + gap - 4, ay);
-                    //Punta derecha →
-                    gc.strokeLine(ax + gap - 4, ay, ax + gap - 10, ay - 5);
-                    gc.strokeLine(ax + gap - 4, ay, ax + gap - 10, ay + 5);
-                    //Punta izquierda ←
-                    gc.strokeLine(ax, ay, ax + 6, ay - 5);
-                    gc.strokeLine(ax, ay, ax + 6, ay + 5);
-                }
-            }
-
-            //etiquetas HEAD / TAIL
-            gc.setFill(javafx.scene.paint.Color.web("#4A90D9"));
-            gc.setFont(javafx.scene.text.Font.font("Courier New", javafx.scene.text.FontWeight.BOLD, 10));
-            gc.fillText("HEAD", startX, y - 6);
-            double lastX = startX + (size - 1) * (nodeW + gap);
-            gc.fillText("TAIL", lastX + nodeW - 30, y - 6);
-
-        } catch (ListException ex) { /* no dibuja */ }
-    }
-
-    private void fillFormDLL(Employee emp) {
-        txtIdDLL.setText(emp.getId());
-        txtNameDLL.setText(emp.getName());
-        cmbJobPositionDLL.setValue(emp.getJobPosition());
-        dpHireDateDLL.setValue(emp.getHireDate());
-    }
-
-    private void clearFormDLL() {
-        txtIdDLL.clear();
-        txtNameDLL.clear();
-        cmbJobPositionDLL.setValue("Choose");
-        dpHireDateDLL.setValue(null);
-    }
-
-    private void appendLogDLL(String msg) {
-        String current = txtRegistroOperacionesDLL.getText();
-        String ts = java.time.LocalTime.now().format(
-                java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
-        txtRegistroOperacionesDLL.setText(
-                (current.isEmpty() ? "" : current + "\n") + "[" + ts + "] " + msg);
-    }
-
-    private Employee findById(String id) throws ListException {
-        if (dll.isEmpty()) return null;
-        int size = dll.size();
-        for (int i = 1; i <= size; i++) {
-            Employee e = (Employee) dll.get(i);
-            if (e.getId().equals(id)) return e;
-        }
-        return null;
     }
 }

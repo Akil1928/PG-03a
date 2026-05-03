@@ -7,9 +7,9 @@ public class LinkedList <T> implements List<T> {
 
 
     @Override
-    public int size() throws ListException {
+    public int size() { // Removed 'throws ListException'
         if(isEmpty()){
-            throw new ListException("Linked List is empty");
+            return 0; // Return 0 if empty, do not throw exception
         }
         Node<T> aux = head;
         int count = 0;
@@ -92,7 +92,19 @@ public class LinkedList <T> implements List<T> {
                 prev = prev.next; //Muevo el auxiliar
                 if(prev.next == null) break;
             }
-            tail = tail!=null? getNodeByIndex(indexOf(getLast())) : null;
+            // If the element was not found, or if it was the last element and prev.next became null
+            // We need to handle the case where the element to remove is the tail
+            if (equals(tail.data, element)) {
+                Node<T> aux = head;
+                while (aux.next != tail) {
+                    aux = aux.next;
+                }
+                aux.next = null;
+                tail = aux;
+            } else {
+                // If element was not found at all, throw exception
+                throw new ListException("Element " + element + " not found in the list.");
+            }
         }
     }
 
